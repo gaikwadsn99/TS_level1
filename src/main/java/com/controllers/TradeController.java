@@ -127,7 +127,7 @@ public class TradeController {
 		}
 		
 		@RequestMapping(value="/detection", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
-		public ResponseEntity<List<Trade>>  findFrontRunning(){
+		public ResponseEntity<Object>  findFrontRunning(){
 			
 			List<Trade> trade = dao.orderByTime();
 			DetectionAlgo d=new DetectionAlgo();
@@ -135,20 +135,8 @@ public class TradeController {
 			trade.clear();
 			
 			FileWriter f = new FileWriter();
-			f.CreateTable(arr);
-			 for(int i=0;i<arr.size();i++) {
-				 
-				 for(int j=0;j<arr.get(i).size();j++) {
-					 
-					// dao.setIsChecked(arr.get(i).get(j).getTradeId());
-					 trade.add(arr.get(i).get(j));
-				 }
-				 
-			 }
-			
-			System.out.println(arr.size());
-	
-			return new ResponseEntity<List<Trade>>(trade, HttpStatus.OK);
+			f.CreateTable(arr);	
+			return new ResponseEntity<Object>(arr, HttpStatus.OK);
 		}
 	
 
