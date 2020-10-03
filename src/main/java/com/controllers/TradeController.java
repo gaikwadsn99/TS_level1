@@ -1,5 +1,6 @@
 package com.controllers;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -34,7 +37,6 @@ import com.pojo.Trade;
 import com.repository.MarketRepository;
 import com.repository.TradeRepository;
 import com.service.TradeService;
-
 @RestController
 @CrossOrigin
 public class TradeController {
@@ -126,7 +128,7 @@ public class TradeController {
 
 		}
 		
-		@RequestMapping(value="/detection", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
+		@RequestMapping(value="/detectionfront", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
 		public ResponseEntity<Object>  findFrontRunning(){
 			
 			List<Trade> trade = dao.orderByTime();
@@ -135,14 +137,64 @@ public class TradeController {
 			trade.clear();
 			
 			FileWriter f = new FileWriter();
-			f.CreateTable(arr);	
+           	f.CreateTable(arr, "./FrontRunningScenarios.xlsx", "./FrontRunningScenarios.pdf");	
 			return new ResponseEntity<Object>(arr, HttpStatus.OK);
 		}
-	
-
 		
-		/*@RequestMapping(value="/detectfrontrun/downloadpdf", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
-		public ResponseEntity downloadFileFromLocal() {
+		
+		
+		
+
+			
+		
+	
+		@GetMapping("/detectwash")
+		public Void  findWashTrades(){
+			
+			List<Trade> trade = dao.findAll();
+			DetectionAlgo det=new DetectionAlgo();
+			String a = "./WashTradeScenarios";
+			String b = "./WashTradeScenarios";
+			
+			ArrayList<ArrayList<Trade>>li = new ArrayList<ArrayList<Trade>>();
+			for(int i =0;i<3;i++)
+				li.add(new ArrayList<Trade>());
+			for(int i = 0;i<300;i++)
+			{
+				if(trade.get(i).getCustomerId()==221)
+				{switch(trade.get(i).getBrokerName()) {
+					case "b1":	li.get(0).add(trade.get(i));
+								break;
+					case "b2" :	li.get(1).add(trade.get(i));
+								break;
+					case "b3":	li.get(2).add(trade.get(i));
+								break;
+				}}
+			}
+			ArrayList<ArrayList<Trade>> arr1;
+			FileWriter f = new FileWriter();
+			
+			for(int i=0;i<3;i++)
+			{
+
+				arr1 = det.DetectWash(li.get(i)); 
+				f.CreateTable(arr1, a+Integer.toString(i+1)+".pdf", b+Integer.toString(i+1)+".xlsx");
+				
+			}
+			
+			return null;
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		/*@RequestMapping(value="/detectfrontrun/downloadpdf", method = RequestMethod.GET, produces = "application/pdf")
+		public ResponseEntity<InputStreamResource> downloadFileFromLocal() {
 			Path path = Paths.get("./FrontRunningScenarios.pdf");
 			UrlResource resource = null;
 			try {
@@ -153,6 +205,33 @@ public class TradeController {
 			return ResponseEntity.ok()				
 					.body(resource);
 		}*/
+		
+		
+		
+		
+		
+
+		@RequestMapping(value="/detectfrontrun/downloadpdf", method = RequestMethod.GET, produces = "application/pdf")
+		public ResponseEntity<InputStreamResource> downloadFileFromLocal_v1() throws IOException {
+			
+			 System.out.println("Calling pdf");
+			  ClassPathResource pdfFile = new ClassPathResource("./FrontRunningScenarios.pdf" );
+			  HttpHeaders headers = new HttpHeaders();
+			  headers.setContentType(org.springframework.http.MediaType.parseMediaType("application/pdf"));
+			  headers.add("Access-Control-Allow-Origin", "*");
+			  headers.add("Access-Control-Allow-Methods", "GET, POST, PUT");
+			  headers.add("Access-Control-Allow-Headers", "Content-Type");
+			  headers.add("Content-Disposition", "filename=" + "FrontRunningScenario");
+			  headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+			  headers.add("Pragma", "no-cache");
+			  headers.add("Expires", "0");
+			 
+			  headers.setContentLength(pdfFile.contentLength());
+			  ResponseEntity<InputStreamResource> response = new ResponseEntity<InputStreamResource>(
+			    new InputStreamResource(pdfFile.getInputStream()), headers, HttpStatus.OK);
+			  return response;
+		}
+		
 		
 		
 		

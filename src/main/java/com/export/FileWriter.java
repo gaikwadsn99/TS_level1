@@ -28,14 +28,14 @@ import com.itextpdf.text.pdf.PdfWriter;
 import com.pojo.Trade;
 
 public class FileWriter {
-	public void CreateTable(ArrayList<ArrayList<Trade>> arr) {
+	public void CreateTable(ArrayList<ArrayList<Trade>> arr, String a, String b) {
 		Document document = new Document();
 		XSSFWorkbook workbook = new XSSFWorkbook();
 
 		PdfWriter writer;
 
 		try {
-			writer = PdfWriter.getInstance(document, new FileOutputStream("./FrontRunningScenarios.pdf"));
+			writer = PdfWriter.getInstance(document, new FileOutputStream(a));
 			document.open();
 
 			Image image;
@@ -111,7 +111,7 @@ public class FileWriter {
 				document.newPage();
 
 			}
-			FileOutputStream out = new FileOutputStream(new File("./FrontRunning.xlsx"));
+			FileOutputStream out = new FileOutputStream(new File(b));
 
 			try {
 				workbook.write(out);
@@ -177,7 +177,7 @@ public class FileWriter {
 		String OP = String.format("%.3f", t.getPrice());
 
 		table.addCell(OP);
-		table.addCell(t.isTradeType() ? "buy" : "sell");
+		table.addCell(t.isChecked() ? "buy" : "sell");
 		table.addCell(Integer.toString(t.getQuantity()));
 		table.addCell(t.getBrokerName());
 

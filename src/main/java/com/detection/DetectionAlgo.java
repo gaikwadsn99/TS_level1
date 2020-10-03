@@ -3,11 +3,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import com.pojo.Trade;
-
-//import com.itextpdf.text.Paragraph;
-//import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
 public class DetectionAlgo {
-
+	
 	double threshold = 100000;
 	int seconds = 2;
 
@@ -15,12 +14,14 @@ public class DetectionAlgo {
 	public ArrayList<ArrayList<Trade>> DetectionAl(List<Trade> li)
 	{
 		
+		System.out.println("inside detection ");
+		System.out.println(li.size());
 		ArrayList<ArrayList<Trade>> frlist = new ArrayList<ArrayList<Trade>>();
 
 		for(int i = 0;i<li.size();i++)
 		{
 			if(li.get(i).getPrice() * li.get(i).getQuantity()>=threshold 
-					&& li.get(i).isChecked() == false && li.get(i).getCustomerId()!=200)
+					&& li.get(i).isChecked() == false && li.get(i).getCustomerId()!=221)
 			{
 				int inter[]=Interval(i,li); 
 				if(inter[0]==inter[1]&&inter[1]==inter[2])
@@ -37,9 +38,67 @@ public class DetectionAlgo {
 					frlist.add(Temp);
 			}
 		}
-		
-		
+		System.out.println("In detection algo");
+		System.out.println(frlist.size());
 		return frlist;
+	}
+	public ArrayList<ArrayList<Trade>> DetectWash(List<Trade>arr)
+	{
+		List<Trade>li = arr;
+		ArrayList<ArrayList<Trade>> aList =  new ArrayList<ArrayList<Trade>>();
+		
+		while(li.size()>=2)
+		{
+			double buy=0;
+			double sell=0;
+			ArrayList<Trade> a1 = new ArrayList<Trade>();
+			if(li.get(0).isTradeType())
+			{
+				buy=buy+li.get(0).getQuantity()*li.get(0).getPrice();
+			}
+			else
+			{
+				sell=sell+li.get(0).getQuantity()*li.get(0).getPrice();
+			}
+			Trade t1 = li.get(0);
+			a1.add(t1);
+			//a1.add(li.get(0));
+			for(int j=1;j<li.size();j++)     
+			{
+				
+				if(li.get(0).getSecurityName().equals(li.get(j).getSecurityName()))
+				{
+					if(li.get(j).isTradeType())
+					{
+						buy=buy+li.get(j).getQuantity()*li.get(j).getPrice();
+						Trade t = li.get(j);
+						
+						a1.add(t);
+						li.remove(j);      
+						j--;  
+					}
+					else
+					{
+						sell=sell+li.get(j).getQuantity()*li.get(j).getPrice();
+						
+						Trade t = li.get(j);
+				
+						a1.add(t);
+						li.remove(j);
+						j--;
+					}
+				}
+			}
+			
+			li.remove(0);
+			
+			if((Math.abs(buy-sell)<=100)&&(a1.size()>=2))
+			{
+				aList.add(a1);
+			}
+		}
+		
+		return aList;
 	}
 	public int[] Interval(int index,List<Trade>li){
 		int interval[]= {0,0,0};
@@ -93,13 +152,13 @@ public class DetectionAlgo {
 			{
 				if((((li.get(j).isTradeType()==true)&&(li.get(j).getSecurity()==1||li.get(j).getSecurity()==4
 						||li.get(j).getSecurity()==3))||(li.get(j).isTradeType()==false&&li.get(j).getSecurity()==2))
-						&&(li.get(j).getCustomerId()==200)&&(li.get(j).getSecurityId()==li.get(custIndex).getSecurityId())
+						&&(li.get(j).getCustomerId()==221)&&(li.get(j).getSecurityId()==li.get(custIndex).getSecurityId())
 						)
 				{
 					int i=custIndex+1;
 					while(i<=endIndex)
 					{
-						if((!li.get(i).isTradeType()==li.get(j).isTradeType())&&(li.get(j).getSecurity()==li.get(i).getSecurity())&&(li.get(i).getCustomerId()==200)&&(li.get(i).getSecurityId()==li.get(custIndex).getSecurityId())
+						if((!li.get(i).isTradeType()==li.get(j).isTradeType())&&(li.get(j).getSecurity()==li.get(i).getSecurity())&&(li.get(i).getCustomerId()==221)&&(li.get(i).getSecurityId()==li.get(custIndex).getSecurityId())
 								)
 						{
 							// Print into a file or enter into db
@@ -139,13 +198,13 @@ public class DetectionAlgo {
 
 			while(startIndex<=j)
 			{
-				if((((li.get(j).isTradeType()==false)&&(li.get(j).getSecurity()==1||li.get(j).getSecurity()==4||li.get(j).getSecurity()==3))||(li.get(j).isTradeType()==true&&li.get(j).getSecurity()==2))&&(li.get(j).getCustomerId()==200)&&(li.get(j).getSecurityId()==li.get(custIndex).getSecurityId())
+				if((((li.get(j).isTradeType()==false)&&(li.get(j).getSecurity()==1||li.get(j).getSecurity()==4||li.get(j).getSecurity()==3))||(li.get(j).isTradeType()==true&&li.get(j).getSecurity()==2))&&(li.get(j).getCustomerId()==221)&&(li.get(j).getSecurityId()==li.get(custIndex).getSecurityId())
 						)
 				{
 					int i=custIndex+1;
 					while(i<=endIndex)
 					{
-						if((!li.get(i).isTradeType()==li.get(j).isTradeType())&&(li.get(j).getSecurity()==li.get(i).getSecurity())&&li.get(i).getCustomerId()==200&&(li.get(i).getSecurityId()==li.get(custIndex).getSecurityId())
+						if((!li.get(i).isTradeType()==li.get(j).isTradeType())&&(li.get(j).getSecurity()==li.get(i).getSecurity())&&li.get(i).getCustomerId()==221&&(li.get(i).getSecurityId()==li.get(custIndex).getSecurityId())
 								)
 						{
 
@@ -195,12 +254,12 @@ public class DetectionAlgo {
 
 			while(startIndex<=j)
 			{
-				if((li.get(j).isTradeType()==true)&&(li.get(j).getSecurity()==3)&&li.get(j).getCustomerId()==200&&(li.get(j).getSecurityId()==li.get(custIndex).getSecurityId()))
+				if((li.get(j).isTradeType()==true)&&(li.get(j).getSecurity()==3)&&li.get(j).getCustomerId()==221&&(li.get(j).getSecurityId()==li.get(custIndex).getSecurityId()))
 				{
 					int i=custIndex+1;
 					while(i<=endIndex)
 					{
-						if((!li.get(i).isTradeType()==li.get(j).isTradeType())&&(li.get(j).getSecurity()==li.get(i).getSecurity())&&(li.get(i).getCustomerId()==200)&&(li.get(i).getSecurityId()==li.get(custIndex).getSecurityId())
+						if((!li.get(i).isTradeType()==li.get(j).isTradeType())&&(li.get(j).getSecurity()==li.get(i).getSecurity())&&(li.get(i).getCustomerId()==221)&&(li.get(i).getSecurityId()==li.get(custIndex).getSecurityId())
 								)
 						{
 							if(!li.get(custIndex).isChecked())
@@ -238,12 +297,12 @@ public class DetectionAlgo {
 
 			while(startIndex<=j)
 			{
-				if((li.get(j).isTradeType()==false)&&(li.get(j).getSecurity()==3)&&(li.get(j).getCustomerId()==200)&&(li.get(j).getSecurityId()==li.get(custIndex).getSecurityId()))
+				if((li.get(j).isTradeType()==false)&&(li.get(j).getSecurity()==3)&&(li.get(j).getCustomerId()==221)&&(li.get(j).getSecurityId()==li.get(custIndex).getSecurityId()))
 				{
 					int i=custIndex+1;
 					while(i<=endIndex)
 					{
-						if((!li.get(i).isTradeType()==li.get(j).isTradeType())&&(li.get(j).getSecurity()==li.get(i).getSecurity())&&(li.get(i).getCustomerId()==200)&&(li.get(i).getSecurityId()==li.get(custIndex).getSecurityId()))
+						if((!li.get(i).isTradeType()==li.get(j).isTradeType())&&(li.get(j).getSecurity()==li.get(i).getSecurity())&&(li.get(i).getCustomerId()==221)&&(li.get(i).getSecurityId()==li.get(custIndex).getSecurityId()))
 						{
 
 							if(!li.get(custIndex).isChecked())
@@ -293,12 +352,12 @@ public class DetectionAlgo {
 
 			while(startIndex<=j)
 			{
-				if((li.get(j).isTradeType()==true)&&(li.get(j).getSecurity()==2)&&(li.get(j).getCustomerId()==200)&&(li.get(j).getSecurityId()==li.get(custIndex).getSecurityId()))
+				if((li.get(j).isTradeType()==true)&&(li.get(j).getSecurity()==2)&&(li.get(j).getCustomerId()==221)&&(li.get(j).getSecurityId()==li.get(custIndex).getSecurityId()))
 				{
 					int i=custIndex+1;
 					while(i<=endIndex)
 					{
-						if((!li.get(i).isTradeType()==li.get(j).isTradeType())&&(li.get(j).getSecurity()==li.get(i).getSecurity())&&(li.get(i).getCustomerId()==200)&&(li.get(i).getSecurityId()==li.get(custIndex).getSecurityId()))
+						if((!li.get(i).isTradeType()==li.get(j).isTradeType())&&(li.get(j).getSecurity()==li.get(i).getSecurity())&&(li.get(i).getCustomerId()==221)&&(li.get(i).getSecurityId()==li.get(custIndex).getSecurityId()))
 						{
 
 							if(!li.get(custIndex).isChecked())
@@ -335,12 +394,12 @@ public class DetectionAlgo {
 
 			while(startIndex<=j)
 			{
-				if((li.get(j).isTradeType()==false)&&(li.get(j).getSecurity()==2)&&(li.get(j).getCustomerId()==200)&&(li.get(j).getSecurityId()==li.get(custIndex).getSecurityId()))
+				if((li.get(j).isTradeType()==false)&&(li.get(j).getSecurity()==2)&&(li.get(j).getCustomerId()==221)&&(li.get(j).getSecurityId()==li.get(custIndex).getSecurityId()))
 				{
 					int i=custIndex+1;
 					while(i<=endIndex)
 					{
-						if((!li.get(i).isTradeType()==li.get(j).isTradeType())&&(li.get(j).getSecurity()==li.get(i).getSecurity())&&(li.get(i).getCustomerId()==200)&&(li.get(i).getSecurityId()==li.get(custIndex).getSecurityId()))
+						if((!li.get(i).isTradeType()==li.get(j).isTradeType())&&(li.get(j).getSecurity()==li.get(i).getSecurity())&&(li.get(i).getCustomerId()==221)&&(li.get(i).getSecurityId()==li.get(custIndex).getSecurityId()))
 						{
 
 							if(!li.get(custIndex).isChecked())
