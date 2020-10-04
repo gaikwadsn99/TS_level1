@@ -1,5 +1,6 @@
 package com.controllers;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
@@ -137,7 +138,7 @@ public class TradeController {
 			trade.clear();
 			
 			FileWriter f = new FileWriter();
-           	f.CreateTable(arr, "./FrontRunningScenarios.xlsx", "./FrontRunningScenarios.pdf");	
+           	f.CreateTable(arr,"./FrontRunningScenarios.pdf", "./FrontRunningScenarios.xlsx",false);	
 			return new ResponseEntity<Object>(arr, HttpStatus.OK);
 		}
 		
@@ -151,6 +152,7 @@ public class TradeController {
 		@GetMapping("/detectwash")
 		public Void  findWashTrades(){
 			
+			
 			List<Trade> trade = dao.findAll();
 			DetectionAlgo det=new DetectionAlgo();
 			String a = "./WashTradeScenarios";
@@ -163,11 +165,11 @@ public class TradeController {
 			{
 				if(trade.get(i).getCustomerId()==221)
 				{switch(trade.get(i).getBrokerName()) {
-					case "b1":	li.get(0).add(trade.get(i));
+					case "Irene Adler":	li.get(0).add(trade.get(i));
 								break;
-					case "b2" :	li.get(1).add(trade.get(i));
+					case "Jack Stapleton" :	li.get(1).add(trade.get(i));
 								break;
-					case "b3":	li.get(2).add(trade.get(i));
+					case "James Moriarity":	li.get(2).add(trade.get(i));
 								break;
 				}}
 			}
@@ -178,12 +180,53 @@ public class TradeController {
 			{
 
 				arr1 = det.DetectWash(li.get(i)); 
-				f.CreateTable(arr1, a+Integer.toString(i+1)+".pdf", b+Integer.toString(i+1)+".xlsx");
+				System.out.println(arr1.size());
+				if(arr1.size()!=0) {
+					System.out.println("In Wsh Trade detection");
+					f.CreateTable(arr1, a+Integer.toString(i+1)+".pdf", b+Integer.toString(i+1)+".xlsx",true);}
+				else
+				{
+					File myObj = new File(a+Integer.toString(i+1)+".pdf"); 
+				    myObj.delete();
+				    File myObj1 = new File(a+Integer.toString(i+1)+".xlsx"); 
+				    myObj1.delete();
+				}
 				
 			}
 			
 			return null;
 		}
+		
+		@RequestMapping(value="/detectwash/{brokername}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
+		public ResponseEntity<Object>  findWashTradeByBroker(@PathVariable String brokername){
+			
+			List<Trade> trade =  dao.findAll();
+			ArrayList<ArrayList<Trade>> arr1;
+			ArrayList<Trade> li =new ArrayList<Trade>();
+			DetectionAlgo det=new DetectionAlgo();
+			for(int i = 0;i<300;i++)
+			{
+				if(trade.get(i).getCustomerId()==221)
+				{
+					System.out.println("Brokername  :"+trade.get(i).getBrokerName());
+					if(trade.get(i).getBrokerName().equalsIgnoreCase(brokername)){
+						
+						li.add(trade.get(i));
+					}
+				}
+			}
+			
+			arr1= det.DetectWash(li);
+			System.out.println("arr1 size  "+ arr1.size());
+			System.out.println("li size in fwtb " + li.size());
+			System.out.println("Brokername" + brokername);
+					
+			
+			
+			return new ResponseEntity<Object>(arr1, HttpStatus.OK);
+		}
+		
+		
 		
 		
 		
@@ -211,7 +254,7 @@ public class TradeController {
 		
 		
 
-		@RequestMapping(value="/detectfrontrun/downloadpdf", method = RequestMethod.GET, produces = "application/pdf")
+	/*	@RequestMapping(value="/detectfrontrun/downloadpdf", method = RequestMethod.GET, produces = "application/pdf")
 		public ResponseEntity<InputStreamResource> downloadFileFromLocal_v1() throws IOException {
 			
 			 System.out.println("Calling pdf");
@@ -231,7 +274,23 @@ public class TradeController {
 			    new InputStreamResource(pdfFile.getInputStream()), headers, HttpStatus.OK);
 			  return response;
 		}
+		*/
 		
+		
+		/*@GetMapping("/download/{fileName:.+}")
+		public ResponseEntity downloadFileFromLocal(@PathVariable String fileName) {
+			Path path = Paths.get(fileBasePath + fileName);
+			Resource resource = null;
+			try {
+				resource = new UrlResource(path.toUri());
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+			return ResponseEntity.ok()
+					.contentType(MediaType.parseMediaType(contentType))
+					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+					.body(resource);
+		}*/
 		
 		
 		

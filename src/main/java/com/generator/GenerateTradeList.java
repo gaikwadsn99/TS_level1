@@ -34,12 +34,16 @@ public class GenerateTradeList{
 
 		int random;
 		int [] cid={1,2,3,221};
-		String [] bname = {"b1","b2","b3"};
+		//String [] bname = {"b1","b2","b3"};
+		String [] bname = {"Irene Adler","Jack Stapleton","James Moriarity"};
 		int index=0;
 		
-		String Sname[][]= {{"Apple ES","Apple Put Option","Apple Call Option","Apple Futures"},
+		/*String Sname[][]= {{"Apple ES","Apple Put Option","Apple Call Option","Apple Futures"},
 							{"Facebook ES","Facebook Put Option","Facebook Call Option","Facebook Futures"},
-							{"Walmart ES","Walmart Put Option","Walmart Call Option","Walmart Futures"}};
+							{"Walmart ES","Walmart Put Option","Walmart Call Option","Walmart Futures"}};*/
+		String Sname[][]= {{"Baker Co. ES","Baker Co. Put Option","Baker Co. Call Option","Baker Co. Futures"},
+				{"Conan & Doyle Trades ES","Conan & Doyle Trades Put Option","Conan & Doyle Trades Call Option","Conan & Doyle Trades Futures"},
+				{"The Reichenbach Company ES","The Reichenbach Company Put Option","The Reichenbach Company Call Option","The Reichenbach Company Futures"}};
 		boolean [] type={true,false};
 		int fbr=0; 
 		int []fr={1000,1000,1000}; //front running index
@@ -649,7 +653,8 @@ public class GenerateTradeList{
 		sc.add(new Trade());
 		sc.add(new Trade());
 		sc.add(new Trade());
-		String [] bname = {"b1","b2","b3"};
+		//String [] bname = {"b1","b2","b3"};
+		String [] bname = {"Irene Adler","Jack Stapleton","James Moriarity"};
 		String b=bname[rand.nextInt(3)];
 		sc.get(0).setBrokerName(b);
 		sc.get(1).setBrokerName(b);

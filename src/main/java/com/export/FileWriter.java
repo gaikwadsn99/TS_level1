@@ -28,11 +28,13 @@ import com.itextpdf.text.pdf.PdfWriter;
 import com.pojo.Trade;
 
 public class FileWriter {
-	public void CreateTable(ArrayList<ArrayList<Trade>> arr, String a, String b) {
+	public void CreateTable(ArrayList<ArrayList<Trade>> arr, String a, String b,boolean d) {
 		Document document = new Document();
 		XSSFWorkbook workbook = new XSSFWorkbook();
 
 		PdfWriter writer;
+		
+		Paragraph ph;
 
 		try {
 			writer = PdfWriter.getInstance(document, new FileOutputStream(a));
@@ -43,13 +45,27 @@ public class FileWriter {
 			image.setAbsolutePosition(500, 790);
 			image.scalePercent(14f, 14f);
 
-//			Image team_logo = Image.getInstance("filename");
-//			team_logo.scalePercent(20f, 20f);
-//			team_logo.setAbsolutePosition(250, 450);
+			Image team_logo = Image.getInstance("./logo.png");
+			team_logo.scalePercent(50f, 60f);
+			team_logo.setAbsolutePosition(250, 450);
 
-			Paragraph ph = new Paragraph(new Phrase(10f, "Surveillance Report - Front Running",
+			String c ;
+			
+			
+			if(d) {
+			c= a.substring(2, a.lastIndexOf('.')-1);}
+			else
+			c= a.substring(2, a.lastIndexOf('.'));
+			
+			ph = new Paragraph(new Phrase(10f, "Surveillance Report "+ c,
 					FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18f)));
-
+			
+		
+				
+				
+				
+		
+			
 			PdfPCell cell = new PdfPCell(ph);
 			cell.setBorderColorBottom(new BaseColor(44, 67, 144));
 			cell.setBorderWidthBottom(2f);
@@ -67,8 +83,9 @@ public class FileWriter {
 			Font conf = FontFactory.getFont(FontFactory.COURIER_OBLIQUE);
 			conf.setColor(BaseColor.RED);
 			Font scnf = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14f);
-
-			XSSFSheet spreadsheet = workbook.createSheet(" Front Running Scenarios ");
+			
+			
+			XSSFSheet spreadsheet = workbook.createSheet(b.substring(2, b.lastIndexOf('.')));
 
 //			System.out.println(arr.size());
 			// "Trade ID","Execution Time", "Customer ID","Security","Market Price","Order
@@ -79,7 +96,7 @@ public class FileWriter {
 			for (int i = 0; i < arr.size(); i++) {
 				document.add(tbl);
 				writer.getDirectContent().addImage(image, true);
-//				writer.getDirectContent().addImage(team_logo, true);
+		        writer.getDirectContent().addImage(team_logo, true);
 
 				int num = i + 1;
 
@@ -177,7 +194,7 @@ public class FileWriter {
 		String OP = String.format("%.3f", t.getPrice());
 
 		table.addCell(OP);
-		table.addCell(t.isChecked() ? "buy" : "sell");
+		table.addCell(t.isTradeType() ? "buy" : "sell");
 		table.addCell(Integer.toString(t.getQuantity()));
 		table.addCell(t.getBrokerName());
 
