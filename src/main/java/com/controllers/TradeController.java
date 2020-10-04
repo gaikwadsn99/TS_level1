@@ -1,15 +1,20 @@
 package com.controllers;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.poi.util.IOUtils;
 import org.apache.tomcat.util.file.ConfigurationSource.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +33,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.detection.DetectionAlgo;
@@ -38,6 +44,7 @@ import com.pojo.Trade;
 import com.repository.MarketRepository;
 import com.repository.TradeRepository;
 import com.service.TradeService;
+
 @RestController
 @CrossOrigin
 public class TradeController {
@@ -229,87 +236,41 @@ public class TradeController {
 		
 		
 		
-		
-		
-		
-		
-		
-		
-		
-		/*@RequestMapping(value="/detectfrontrun/downloadpdf", method = RequestMethod.GET, produces = "application/pdf")
-		public ResponseEntity<InputStreamResource> downloadFileFromLocal() {
-			Path path = Paths.get("./FrontRunningScenarios.pdf");
-			UrlResource resource = null;
+		@RequestMapping(value = "/files/Frontpdf",method = RequestMethod.GET, produces = "application/pdf")
+		public void getFile(HttpServletResponse response)
+		{
 			try {
-				resource = new UrlResource(path.toUri());
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
+				InputStream is = new FileInputStream("FrontRunningScenarios.pdf");
+				IOUtils.copy(is, response.getOutputStream());
+				response.setContentType("pdf");
+			     response.flushBuffer();
+			}catch(IOException ex) {
+				System.out.println(ex);
 			}
-			return ResponseEntity.ok()				
-					.body(resource);
-		}*/
-		
-		
-		
-		
-		
-
-	/*	@RequestMapping(value="/detectfrontrun/downloadpdf", method = RequestMethod.GET, produces = "application/pdf")
-		public ResponseEntity<InputStreamResource> downloadFileFromLocal_v1() throws IOException {
 			
-			 System.out.println("Calling pdf");
-			  ClassPathResource pdfFile = new ClassPathResource("./FrontRunningScenarios.pdf" );
-			  HttpHeaders headers = new HttpHeaders();
-			  headers.setContentType(org.springframework.http.MediaType.parseMediaType("application/pdf"));
-			  headers.add("Access-Control-Allow-Origin", "*");
-			  headers.add("Access-Control-Allow-Methods", "GET, POST, PUT");
-			  headers.add("Access-Control-Allow-Headers", "Content-Type");
-			  headers.add("Content-Disposition", "filename=" + "FrontRunningScenario");
-			  headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-			  headers.add("Pragma", "no-cache");
-			  headers.add("Expires", "0");
-			 
-			  headers.setContentLength(pdfFile.contentLength());
-			  ResponseEntity<InputStreamResource> response = new ResponseEntity<InputStreamResource>(
-			    new InputStreamResource(pdfFile.getInputStream()), headers, HttpStatus.OK);
-			  return response;
 		}
-		*/
 		
-		
-		/*@GetMapping("/download/{fileName:.+}")
-		public ResponseEntity downloadFileFromLocal(@PathVariable String fileName) {
-			Path path = Paths.get(fileBasePath + fileName);
-			Resource resource = null;
+		@RequestMapping(value = "/files/Frontexcel",method = RequestMethod.GET,produces = "application/xlsx")
+		public void getFileExcel(HttpServletResponse response)
+		{
 			try {
-				resource = new UrlResource(path.toUri());
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
+				InputStream is = new FileInputStream("FrontRunningScenarios.xlsx");
+				IOUtils.copy(is, response.getOutputStream());
+				response.setContentType("xlsx");
+			
+			     response.flushBuffer();
+			}catch(IOException ex) {
+				System.out.println(ex);
 			}
-			return ResponseEntity.ok()
-					.contentType(MediaType.parseMediaType(contentType))
-					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-					.body(resource);
-		}*/
+			
+		}
+		
+		
+			
+			
 		
 		
 		
-		/*@GetMapping("/download/{fileName:.+}")
-		public ResponseEntity downloadFileFromLocal(@PathVariable String fileName) {
-			String fileBasePath="./";
-			Path path = Paths.get(fileBasePath + fileName);
-			Resource resource = null;
-			try {
-				resource = new UrlResource(path.toUri());
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			}
-			return ResponseEntity.ok()
-					.contentType(MediaType.parseMediaType(contentType))
-					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-					.body(resource);
-		}*/
-	
 		
 		
 
